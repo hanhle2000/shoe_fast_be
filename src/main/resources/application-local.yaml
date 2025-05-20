@@ -1,0 +1,92 @@
+server:
+  port: 8086
+  tomcat:
+    accesslog:
+      enabled: true
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate: ERROR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+spring:
+  jpa:
+    #    hibernate:
+    #      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+      hibernate.id.new_generator_mappings: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: true
+      hibernate.jdbc.lob.non_contextual_creation: true
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+      # modify batch size as necessary
+      hibernate.jdbc.batch_size: 50
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.query.fail_on_pagination_over_collection_fetch: true
+      hibernate.query.in_clause_parameter_padding: true
+      hibernate.format_sql: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shoe_store
+    username: postgres
+    password: 123456
+#    url: jdbc:postgresql://dpg-ctheogggph6c73dcke7g-a.oregon-postgres.render.com/shoe_fast_v1_0
+#    username: shoe_fast_v1_0_user
+#    password: LdmpJvH3Lx46kXqczP8LIbiyMr6OTjvS
+
+    #    url: ${DATABASE_URL}
+    #    username: ${DATABASE_USERNAME}
+    #    password: ${DATABASE_PASSWORD}
+
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: pphuc9122002@gmail.com
+    password: efxxykccrzktdmmv
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 100
+
+#payment:
+#  vnPay:
+#    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+#    tmnCode: 58X4B4HP
+#    secretKey: VRLDWNVWDNPCOEPBZUTWSEDQAGXJCNGZ
+#    returnUrl: http://localhost:8086/api/v1/payment/vn-pay-callback
+#    version: 2.1.0
+#    command: pay
+#    orderType: other
+
+payment:
+  vnPay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    tmnCode: K34EKZ56
+    secretKey: XHR9DTHZXOXMO0P3POBCHKF3PZU3JKWY
+    returnUrl: http://localhost:8086/api/v1/payment/vn-pay-callback
+    version: 2.1.0
+    command: pay
+    orderType: other
+
