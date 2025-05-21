@@ -35,6 +35,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductAccountLikeMapRepository productAccountLikeMapRepository;
     private final CategoryRepository categoryRepository;
+    private final CartItemRepository cartItemRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Override
     public Page<ProductDtoResponse> getAllProduct(Pageable pageable, String accessToken) {
@@ -407,26 +409,28 @@ public class ProductServiceImpl implements ProductService {
         }
         /*Create attribute of product*/
         List<AttributeDtoRequest> reqAttributeDtos = createProductRequest.getAttribute();
+        List<Attribute> attributeList = attributeRepository.findAllByProductId(productEntity.getId());
+        List<Long> attributeIds = new ArrayList<>();
+        if(Objects.nonNull(attributeList) && !attributeList.isEmpty()){
+            attributeIds = attributeList.stream().map(Attribute::getId).collect(Collectors.toList());
+        }
+        List<CartItem> cartItems = cartItemRepository.findAllByAttributeIdIn(attributeIds);
+        List<OrderDetail> orderDetails = orderDetailRepository.findAllByAttributeIdIn(attributeIds);
+        if(!cartItems.isEmpty() || !orderDetails.isEmpty()){
+            throw  new RuntimeException(CodeAndMessage.ERR15);
+        }
+        attributeRepository.deleteAll(attributeList);
         for (AttributeDtoRequest r : reqAttributeDtos) {
-            Attribute attribute = attributeRepository.findByProductIdAndSize(productEntity.getId(), r.getSize());
-            if (Objects.nonNull(attribute)) {
-                attribute.setName(productEntity.getName());
-                attribute.setStock(r.getStock());
-                attribute.setSize(r.getSize());
-                attribute.setPrice(r.getPrice());
-                attributeRepository.save(attribute);
-            } else {
-                attribute = new Attribute();
-                attribute.setName(productEntity.getName());
-                attribute.setSize(r.getSize());
-                attribute.setPrice(r.getPrice());
-                attribute.setStock(r.getStock());
-                attribute.setCache(0L);
-                attribute.setCreateDate(LocalDate.now());
-                attribute.setModifyDate(LocalDate.now());
-                attribute.setProductId(productEntity.getId());
-                attributeRepository.save(attribute);
-            }
+            Attribute attribute = new Attribute();
+            attribute.setName(productEntity.getName());
+            attribute.setSize(r.getSize());
+            attribute.setPrice(r.getPrice());
+            attribute.setStock(r.getStock());
+            attribute.setCache(0L);
+            attribute.setCreateDate(LocalDate.now());
+            attribute.setModifyDate(LocalDate.now());
+            attribute.setProductId(productEntity.getId());
+            attributeRepository.save(attribute);
         }
         return productMapper.getResponseFromEntity(productEntity);
     }
@@ -480,7 +484,7 @@ public class ProductServiceImpl implements ProductService {
                     return ProductDtoResponse.builder()
                             .id(product.getId())
                             .name(product.getName())
-                            .price(attribute.getPrice())
+                            .price(Objects.nonNull(attribute)? attribute.getPrice() : 0L)
                             .brand(brandsEntityMap.get(product.getBrandId()).getName())
                             .code(product.getCode())
                             .view(product.getView())
@@ -493,4 +497,5 @@ public class ProductServiceImpl implements ProductService {
                 }
         );
     }
+
 }

@@ -8,6 +8,7 @@ public class CodeAndMessage {
     public static final String ME105 = "ME0104-Email đã tồn tại";
     public static final String ME106 = "ME106-Tạo tài khoản thành công! ";
     public static final String ME108 = "ME108- Cập nhật mật khẩu thành công! ";
+    public static final String ERR15 = "ERR15- Sản phẩm đã được sử dụng! Không thể xóa! ";
 
 
     //error
